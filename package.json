@@ -7,7 +7,10 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node_modules/karma/bin/karma start"
+    "test": "node_modules/karma/bin/karma start",
+    "babel": "babel src --out-file lib/cross-worker.js",
+    "uglify": "uglifyjs lib/cross-worker.js --output lib/cross-worker.min.js --compress",
+    "build": "npm test && npm run babel && npm run uglify"
   },
   "repository": {
     "type": "git",
@@ -25,11 +28,14 @@
   },
   "homepage": "https://github.com/yehudasabag/cross-worker#readme",
   "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-latest": "^6.16.0",
     "chai": "^3.5.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-mocha": "^1.3.0",
     "karma-sinon": "^1.0.5",
-    "mocha": "^3.1.2"
+    "mocha": "^3.1.2",
+    "uglify-js": "^2.7.4"
   }
 }
