@@ -4,18 +4,18 @@ describe("CrossWorker tests:", function () {
 
     describe("constructor tests:", function () {
         it("should create a SharedWorker if supported", function () {
-            let cdWorker = new CrossWorker("base/test/dummyWorker.js");
+            let crossWorker = new CrossWorker("base/test/dummyWorker.js");
             if (window.SharedWorker) {
-                assert.isTrue(cdWorker._nativeWorker instanceof SharedWorker);
+                assert.isTrue(crossWorker._nativeWorker instanceof SharedWorker);
             }
             else {
-                assert.isTrue(cdWorker._nativeWorker instanceof Worker);
+                assert.isTrue(crossWorker._nativeWorker instanceof Worker);
             }
         });
 
         it("should create a dedicated worker always", function () {
-            let cdWorker = new CrossWorker("base/test/dummyWorker.js", true);
-            assert.isTrue(cdWorker._nativeWorker instanceof Worker);
+            let crossWorker = new CrossWorker("base/test/dummyWorker.js", true);
+            assert.isTrue(crossWorker._nativeWorker instanceof Worker);
         });
 
         it("should create a dedicated worker from a Blob", function () {
@@ -24,9 +24,9 @@ describe("CrossWorker tests:", function () {
 
                 }.toString(), ')()'], {type: 'application/javascript'}));
 
-            let cdWorker = new CrossWorker(blobURL, true);
+            let crossWorker = new CrossWorker(blobURL, true);
             URL.revokeObjectURL(blobURL);
-            assert.isTrue(cdWorker._nativeWorker instanceof Worker);
+            assert.isTrue(crossWorker._nativeWorker instanceof Worker);
         });
 
         it("should create a SharedWorker from a Blob", function () {
@@ -35,23 +35,23 @@ describe("CrossWorker tests:", function () {
 
                 }.toString(), ')()'], {type: 'application/javascript'}));
 
-            let cdWorker = new CrossWorker(blobURL);
+            let crossWorker = new CrossWorker(blobURL);
             URL.revokeObjectURL(blobURL);
-            assert.isTrue(window.SharedWorker ? cdWorker._nativeWorker instanceof window.SharedWorker
-                : cdWorker._nativeWorker instanceof window.Worker);
+            assert.isTrue(window.SharedWorker ? crossWorker._nativeWorker instanceof window.SharedWorker
+                : crossWorker._nativeWorker instanceof window.Worker);
         });
     });
 
     describe("message passing tests:", function () {
         it('string messages between main to CrossWorker should pass', function (done) {
             var expectedResult = null;
-            let cdWorker = new CrossWorker("base/test/dummyWorker.js");
-            cdWorker.port.onmessage = function (e) {
+            let crossWorker = new CrossWorker("base/test/dummyWorker.js");
+            crossWorker.port.onmessage = function (e) {
                 try {
                     assert.equal(e.data, expectedResult);
                     expectedResult = 'BBB';
                     if (e.data === 'AAA') {
-                        cdWorker.port.postMessage('BBB');
+                        crossWorker.port.postMessage('BBB');
                     }
                     else {
                         assert.equal(e.data, 'BBB');
@@ -64,13 +64,13 @@ describe("CrossWorker tests:", function () {
                 }
             };
             expectedResult = 'AAA';
-            cdWorker.port.postMessage("AAA");
+            crossWorker.port.postMessage("AAA");
         });
 
         it('object messages between main to CrossWorker should pass', function (done) {
             var expectedResult = null;
-            let cdWorker = new CrossWorker("base/test/dummyWorker.js");
-            cdWorker.port.onmessage = function (e) {
+            let crossWorker = new CrossWorker("base/test/dummyWorker.js");
+            crossWorker.port.onmessage = function (e) {
                 try {
                     assert.deepEqual(e.data, expectedResult);
                     done();
@@ -81,7 +81,7 @@ describe("CrossWorker tests:", function () {
             };
             var data = {a: "yehuda", b: "sabag"};
             expectedResult = data;
-            cdWorker.port.postMessage(data);
+            crossWorker.port.postMessage(data);
         });
 
         it('message passing with a CrossWorker created from a Blob should work', function (done) {
@@ -109,17 +109,17 @@ describe("CrossWorker tests:", function () {
                     }
                 }.toString(), ')()'], {type: 'application/javascript'}));
 
-            let cdWorker = new CrossWorker(blobURL);
-            assert.isTrue(window.SharedWorker ? cdWorker._nativeWorker instanceof window.SharedWorker
-                : cdWorker._nativeWorker instanceof window.Worker);
+            let crossWorker = new CrossWorker(blobURL);
+            assert.isTrue(window.SharedWorker ? crossWorker._nativeWorker instanceof window.SharedWorker
+                : crossWorker._nativeWorker instanceof window.Worker);
 
             let expectedResult = null;
-            cdWorker.port.onmessage = function (e) {
+            crossWorker.port.onmessage = function (e) {
                 try {
                     assert.equal(e.data, expectedResult);
                     expectedResult = 'BBB';
                     if (e.data === 'AAA') {
-                        cdWorker.port.postMessage('BBB');
+                        crossWorker.port.postMessage('BBB');
                     }
                     else {
                         assert.equal(e.data, 'BBB');
@@ -134,20 +134,20 @@ describe("CrossWorker tests:", function () {
                 }
             };
             expectedResult = 'AAA';
-            cdWorker.port.postMessage("AAA");
+            crossWorker.port.postMessage("AAA");
 
         });
 
         // Currently not working due to bug in Chrome http://crbug.com/334408
         xit('message passing with transferable objects should succeed', function (done) {
-            let cdWorker = new CrossWorker("base/test/dummyWorker.js", true);
+            let crossWorker = new CrossWorker("base/test/dummyWorker.js", true);
 
             let uInt8Array = new Uint8Array(1024);
             for (let i = 0; i < uInt8Array.length; ++i) {
                 uInt8Array[i] = i;
             }
 
-            cdWorker.port.onmessage = function (e) {
+            crossWorker.port.onmessage = function (e) {
                 let temp = e.data;
                 assert.equal(temp.length, uInt8Array.length, 'length is not equal');
                 for (let i = 0; i < temp.length; ++i) {
@@ -156,21 +156,21 @@ describe("CrossWorker tests:", function () {
                 done();
             };
 
-            cdWorker.port.postMessage(uInt8Array.buffer, [uInt8Array.buffer]);
+            crossWorker.port.postMessage(uInt8Array.buffer, [uInt8Array.buffer]);
         });
     });
 
     describe('close method tests:', function () {
         it('close should close the worker', function (done) {
-            let cdWorker = new CrossWorker("base/test/dummyWorker.js", true);
-            cdWorker.port.onmessage = function (e) {
+            let crossWorker = new CrossWorker("base/test/dummyWorker.js", true);
+            crossWorker.port.onmessage = function (e) {
                 assert.equal(e.data, "Before close");
-                cdWorker.port.close();
-                cdWorker.port.postMessage("After close");
+                crossWorker.port.close();
+                crossWorker.port.postMessage("After close");
                 // If we will receive an onmessage in the meantime the test will fail since 'Before close' != 'After close'
                 setTimeout(done, 200);
             };
-            cdWorker.port.postMessage("Before close");
+            crossWorker.port.postMessage("Before close");
 
         });
 
