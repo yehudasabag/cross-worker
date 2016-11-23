@@ -10,7 +10,7 @@
     "test": "node_modules/karma/bin/karma start",
     "babel": "babel src --out-file lib/cross-worker.js",
     "uglify": "uglifyjs lib/cross-worker.js --output lib/cross-worker.min.js --compress",
-    "build": "npm test && npm run babel && npm run uglify"
+    "build": "npm run babel && npm run uglify && npm test"
   },
   "repository": {
     "type": "git",
